@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get RFID Readings</title>
+    <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
+</head>
+<body>
+    <h1>Get RFID Readings</h1>
+    <form action="{{ url_for('get_rfid_readings') }}" method="get">
+        <label for="bus_number">Bus Number:</label>
+        <input type="text" name="bus_number" required>
+        <button type="submit">Get Readings</button>
+    </form>
+    {% if readings %}
+        <h2>RFID Readings</h2>
+        <ul>
+            {% for reading in readings %}
+                <li>
+                    RFID Tag: {{ reading.rfid_tag }} - Timestamp: {{ reading.timestamp }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>

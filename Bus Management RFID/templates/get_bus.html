@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Bus</title>
+    <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
+</head>
+<body>
+    <h1>Get Bus Details</h1>
+    <form action="{{ url_for('get_bus') }}" method="get">
+        <label for="bus_number">Bus Number:</label>
+        <input type="text" name="bus_number" required>
+        <button type="submit">Get Details</button>
+    </form>
+    {% if bus %}
+        <h2>Bus Details</h2>
+        <p>Bus Number: {{ bus.bus_number }}</p>
+        <p>Route: {{ bus.route }}</p>
+        <p>Capacity: {{ bus.capacity }}</p>
+    {% endif %}
+</body>
+</html>

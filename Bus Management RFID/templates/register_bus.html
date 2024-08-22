@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Bus</title>
+    <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
+</head>
+<body>
+    <h1>Register Bus</h1>
+    <form action="{{ url_for('register_bus') }}" method="post">
+        <label for="bus_number">Bus Number:</label>
+        <input type="text" name="bus_number" required>
+        <label for="route">Route:</label>
+        <input type="text" name="route" required>
+        <label for="capacity">Capacity:</label>
+        <input type="number" name="capacity">
+        <button type="submit">Register Bus</button>
+    </form>
+</body>
+</html>

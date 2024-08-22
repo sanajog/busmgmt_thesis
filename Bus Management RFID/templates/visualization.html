@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Visualization</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+
+    <div class="flex">
+        <!-- Sidebar (reuse from dashboard.html) -->
+        <div class="w-64 bg-gray-800 text-white min-h-screen p-4">
+            <h2 class="text-2xl font-bold mb-6">Dashboard</h2>
+            <ul>
+                <li><a href="{{ url_for('data_visualization') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Visualization</a></li>
+                <li><a href="{{ url_for('logout') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Logout</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-6">
+            <h1 class="text-3xl font-bold mb-4">Data Visualization</h1>
+
+            <p>Total Users: {{ total_users }}</p>
+            <p>Total Buses: {{ total_buses }}</p>
+            <p>Total RFID Numbers: {{ total_rfid_numbers }}</p>
+
+            <!-- Add your data visualization logic here, e.g., charts, graphs -->
+            <!-- Example: -->
+            <div>
+                <h2 class="text-2xl font-semibold mt-6">User History</h2>
+                <ul>
+                    {% for entry in history %}
+                        <li>
+                            <strong>{{ entry.username }}</strong> - {{ entry.email }}
+                            <ul>
+                                <li>RFID Number: {{ entry.rfid_number }}</li>
+                                <li>Bus Number: {{ entry.bus_number }}</li>
+                                <li>Route: {{ entry.route }}</li>
+                                <li>Capacity: {{ entry.capacity }}</li>
+                            </ul>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- For Data Visualization -->
+</head>
+<body class="bg-gray-100 text-gray-900">
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside class="w-64 h-screen bg-blue-800 text-white">
+            <div class="p-6">
+                <h2 class="text-2xl font-bold mb-6">Dashboard</h2>
+                <ul>
+                    <li class="mb-4">
+                        <a href="#" id="addBusLink" class="block px-4 py-2 rounded hover:bg-blue-700">Add Bus</a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="#" id="rfidScanLink" class="block px-4 py-2 rounded hover:bg-blue-700">RFID Scan</a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="#" id="visualizationLink" class="block px-4 py-2 rounded hover:bg-blue-700">Visualization</a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="#" id="optimizeRouteLink" class="block px-4 py-2 rounded hover:bg-blue-700">Optimize Routes</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('logout') }}" class="block px-4 py-2 rounded hover:bg-blue-700">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <h1 class="text-3xl font-bold mb-6">Welcome, {{ current_user.username }}!</h1>
+
+            <!-- Add Bus Form -->
+            <div id="addBusForm" class="hidden mb-8">
+                <h2 class="text-2xl font-bold mb-4">Add Bus</h2>
+                <form id="busForm" class="space-y-4">
+                    <div>
+                        <label for="bus_number" class="block text-sm font-medium text-gray-700">Bus Number:</label>
+                        <input type="text" id="bus_number" name="bus_number" required class="block w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="route" class="block text-sm font-medium text-gray-700">Route:</label>
+                        <input type="text" id="route" name="route" required class="block w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="capacity" class="block text-sm font-medium text-gray-700">Capacity:</label>
+                        <input type="number" id="capacity" name="capacity" required class="block w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                    <button type="submit" class="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700">Add Bus</button>
+                </form>
+
+                <!-- Bus List Table -->
+                <h2 class="text-2xl font-bold mt-8">Bus List</h2>
+                <table class="min-w-full bg-white border border-gray-300 mt-4">
+                    <thead>
+                        <tr>
+                            <th class="py-2 px-4 border-b">Bus Number</th>
+                            <th class="py-2 px-4 border-b">Route</th>
+                            <th class="py-2 px-4 border-b">Capacity</th>
+                        </tr>
+                    </thead>
+                    <tbody id="busTableBody">
+                        <!-- Rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- RFID Scan Form -->
+            <div id="rfidScanForm" class="hidden mb-8">
+                <h2 class="text-2xl font-bold mb-4">RFID Scan</h2>
+                <form id="rfidForm" class="space-y-4">
+                    <div>
+                        <label for="rfid_bus_number" class="block text-sm font-medium text-gray-700">Bus Number:</label>
+                        <input type="text" id="rfid_bus_number" name="bus_number" required class="block w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="rfid_tag" class="block text-sm font-medium text-gray-700">RFID Tag:</label>
+                        <input type="text" id="rfid_tag" name="rfid_tag" required class="block w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                    <button type="submit" class="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700">Record Scan</button>
+                </form>
+
+                <!-- RFID Readings Table -->
+                <h2 class="text-2xl font-bold mt-8">RFID Readings</h2>
+                <table class="min-w-full bg-white border border-gray-300 mt-4">
+                    <thead>
+                        <tr>
+                            <th class="py-2 px-4 border-b">Bus Number</th>
+                            <th class="py-2 px-4 border-b">RFID Tag</th>
+                            <th class="py-2 px-4 border-b">Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rfidTableBody">
+                        <!-- Rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Data Visualization -->
+            <div id="visualizationSection" class="hidden mb-8">
+                <h2 class="text-2xl font-bold mb-4">Data Visualization</h2>
+                <p>Total Users: <span id="totalUsers"></span></p>
+                <p>Total Buses: <span id="totalBuses"></span></p>
+                <p>Total RFID Numbers: <span id="totalRFIDNumbers"></span></p>
+
+                <canvas id="userChart" width="400" height="200"></canvas>
+                <canvas id="rfidChart" width="400" height="200" class="mt-6"></canvas>
+
+                <div>
+                    <h2 class="text-2xl font-semibold mt-6">User History</h2>
+                    <ul id="userHistoryList">
+                        <!-- User history data will be inserted here -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Optimized Routes -->
+            <div id="optimizedRoutesSection" class="hidden mb-8">
+                <h2 class="text-2xl font-bold mb-4">Optimized Routes</h2>
+                <table class="min-w-full bg-white border border-gray-300 mt-4">
+                    <thead>
+                        <tr>
+                            <th class="py-2 px-4 border-b">Bus Number</th>
+                            <th class="py-2 px-4 border-b">Optimized Route</th>
+                        </tr>
+                    </thead>
+                    <tbody id="optimizedRouteTableBody">
+                        <!-- Rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const addBusLink = document.getElementById('addBusLink');
+            const rfidScanLink = document.getElementById('rfidScanLink');
+            const visualizationLink = document.getElementById('visualizationLink');
+            const optimizeRouteLink = document.getElementById('optimizeRouteLink');
+
+            const addBusForm = document.getElementById('addBusForm');
+            const rfidScanForm = document.getElementById('rfidScanForm');
+            const visualizationSection = document.getElementById('visualizationSection');
+            const optimizedRoutesSection = document.getElementById('optimizedRoutesSection');
+
+            const busForm = document.getElementById('busForm');
+            const rfidForm = document.getElementById('rfidForm');
+            const busTableBody = document.getElementById('busTableBody');
+            const rfidTableBody = document.getElementById('rfidTableBody');
+            const optimizedRouteTableBody = document.getElementById('optimizedRouteTableBody');
+
+            // Event Listeners
+            addBusLink.addEventListener('click', function () {
+                addBusForm.classList.toggle('hidden');
+                rfidScanForm.classList.add('hidden');
+                visualizationSection.classList.add('hidden');
+                optimizedRoutesSection.classList.add('hidden');
+                loadBusList();
+            });
+
+            rfidScanLink.addEventListener('click', function () {
+                rfidScanForm.classList.toggle('hidden');
+                addBusForm.classList.add('hidden');
+                visualizationSection.classList.add('hidden');
+                optimizedRoutesSection.classList.add('hidden');
+                loadRFIDReadings();
+            });
+
+            visualizationLink.addEventListener('click', function () {
+                visualizationSection.classList.toggle('hidden');
+                addBusForm.classList.add('hidden');
+                rfidScanForm.classList.add('hidden');
+                optimizedRoutesSection.classList.add('hidden');
+                loadVisualizationData();
+            });
+
+            optimizeRouteLink.addEventListener('click', function () {
+                optimizedRoutesSection.classList.toggle('hidden');
+                addBusForm.classList.add('hidden');
+                rfidScanForm.classList.add('hidden');
+                visualizationSection.classList.add('hidden');
+                loadOptimizedRoutes();
+            });
+
+            // Add Bus Form Submission
+            busForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+                const formData = new FormData(busForm);
+                fetch('{{ url_for('register_bus') }}', {
+                    method: 'POST',
+                    body: JSON.stringify(Object.fromEntries(formData)),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => response.json())
+                  .then(data => {
+                      alert(data.message);
+                      busForm.reset();
+                      loadBusList();
+                  });
+            });
+
+            // Load Bus List
+            function loadBusList() {
+                fetch('{{ url_for('get_buses') }}')
+                    .then(response => response.json())
+                    .then(data => {
+                        busTableBody.innerHTML = '';
+                        data.forEach(bus => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td class="py-2 px-4 border-b">${bus.bus_number}</td>
+                                <td class="py-2 px-4 border-b">${bus.route}</td>
+                                <td class="py-2 px-4 border-b">${bus.capacity}</td>
+                            `;
+                            busTableBody.appendChild(row);
+                        });
+                    });
+            }
+
+            // RFID Form Submission
+            rfidForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+                const formData = new FormData(rfidForm);
+                fetch('{{ url_for('rfid_scan') }}', {
+                    method: 'POST',
+                    body: JSON.stringify(Object.fromEntries(formData)),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => response.json())
+                  .then(data => {
+                      alert(data.message);
+                      rfidForm.reset();
+                      loadRFIDReadings();
+                  });
+            });
+
+            // Load RFID Readings
+            function loadRFIDReadings() {
+                fetch('{{ url_for('get_rfid_readings', bus_number='BUS_NUMBER_PLACEHOLDER') }}')
+                    .then(response => response.json())
+                    .then(data => {
+                        rfidTableBody.innerHTML = '';
+                        data.forEach(reading => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td class="py-2 px-4 border-b">${reading.bus_number}</td>
+                                <td class="py-2 px-4 border-b">${reading.rfid_tag}</td>
+                                <td class="py-2 px-4 border-b">${reading.timestamp}</td>
+                            `;
+                            rfidTableBody.appendChild(row);
+                        });
+                    });
+            }
+
+            // Load Visualization Data
+            function loadVisualizationData() {
+                fetch('{{ url_for('data_visualization') }}')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('totalUsers').textContent = data.total_users;
+                        document.getElementById('totalBuses').textContent = data.total_buses;
+                        document.getElementById('totalRFIDNumbers').textContent = data.total_rfid_numbers;
+
+                        const userHistoryList = document.getElementById('userHistoryList');
+                        userHistoryList.innerHTML = '';
+                        data.history.forEach(entry => {
+                            const listItem = document.createElement('li');
+                            listItem.innerHTML = `<strong>${entry.username}</strong> - ${entry.email}
+                                <ul>
+                                    <li>RFID Number: ${entry.rfid_number}</li>
+                                    <li>Bus Number: ${entry.bus_number}</li>
+                                    <li>Route: ${entry.route}</li>
+                                    <li>Capacity: ${entry.capacity}</li>
+                                </ul>`;
+                            userHistoryList.appendChild(listItem);
+                        });
+
+                        // Create a user chart using Chart.js
+                        const ctxUser = document.getElementById('userChart').getContext('2d');
+                        new Chart(ctxUser, {
+                            type: 'bar',
+                            data: {
+                                labels: ['Total Users', 'Total Buses', 'Total RFID Numbers'],
+                                datasets: [{
+                                    label: 'Statistics',
+                                    data: [data.total_users, data.total_buses, data.total_rfid_numbers],
+                                    backgroundColor: [
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+
+                        // Create an RFID chart using Chart.js
+                        const ctxRFID = document.getElementById('rfidChart').getContext('2d');
+                        new Chart(ctxRFID, {
+                            type: 'line',
+                            data: {
+                                labels: data.history.map(entry => entry.username),
+                                datasets: [{
+                                    label: 'RFID Scans',
+                                    data: data.history.map(entry => entry.rfid_number ? 1 : 0),
+                                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                                    borderColor: 'rgba(153, 102, 255, 1)',
+                                    borderWidth: 1,
+                                    fill: true,
+                                    tension: 0.1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+                    });
+            }
+
+            // Load Optimized Routes
+            function loadOptimizedRoutes() {
+                fetch('{{ url_for('get_optimized_routes') }}')
+                    .then(response => response.json())
+                    .then(data => {
+                        optimizedRouteTableBody.innerHTML = '';
+                        data.forEach(route => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td class="py-2 px-4 border-b">${route.bus_number}</td>
+                                <td class="py-2 px-4 border-b">${route.optimized_route}</td>
+                            `;
+                            optimizedRouteTableBody.appendChild(row);
+                        });
+                    });
+            }
+        });
+    </script>
+</body>
+</html>

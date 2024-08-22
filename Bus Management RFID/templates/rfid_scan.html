@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RFID Scan</title>
+    <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
+</head>
+<body>
+    <h1>RFID Scan</h1>
+    <form action="{{ url_for('rfid_scan') }}" method="post">
+        <label for="bus_number">Bus Number:</label>
+        <input type="text" name="bus_number" required>
+        <label for="rfid_tag">RFID Tag:</label>
+        <input type="text" name="rfid_tag" required>
+        <button type="submit">Record Scan</button>
+    </form>
+</body>
+</html>
